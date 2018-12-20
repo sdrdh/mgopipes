@@ -3,6 +3,7 @@ package mgopipes
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"reflect"
 	"strings"
 
@@ -15,7 +16,8 @@ var ErrUnmarshalJSON = fmt.Errorf("Error unmarshalling")
 // GetPipeline returns the corresponding []bson.M from the traditional JSON string
 func GetPipeline(jsonString string, args ...interface{}) ([]bson.M, error) {
 	var p []bson.M
-	ps := fmt.Sprintf(jsonString, args...)
+	ps := getFormattedPipelineString(jsonString, args...)
+	log.Println(ps)
 	err := json.Unmarshal([]byte(ps), &p)
 	if err != nil {
 		return []bson.M{}, ErrUnmarshalJSON
@@ -37,12 +39,28 @@ func getFormattedPipelineString(jsonString string, args ...interface{}) string {
 			for _, a := range arg.([]int) {
 				stringArgs = append(stringArgs, fmt.Sprintf("%d", a))
 			}
+		case reflect.Int8:
+			for _, a := range arg.([]int8) {
+				stringArgs = append(stringArgs, fmt.Sprintf("%d", a))
+			}
+		case reflect.Int32:
+			for _, a := range arg.([]int32) {
+				stringArgs = append(stringArgs, fmt.Sprintf("%d", a))
+			}
+		case reflect.Int64:
+			for _, a := range arg.([]int64) {
+				stringArgs = append(stringArgs, fmt.Sprintf("%d", a))
+			}
 		case reflect.String:
 			for _, a := range arg.([]string) {
 				stringArgs = append(stringArgs, fmt.Sprintf(`"%s"`, a))
 			}
 		case reflect.Float32:
 			for _, a := range arg.([]float32) {
+				stringArgs = append(stringArgs, fmt.Sprintf("%f", a))
+			}
+		case reflect.Float64:
+			for _, a := range arg.([]float64) {
 				stringArgs = append(stringArgs, fmt.Sprintf("%f", a))
 			}
 		default:
